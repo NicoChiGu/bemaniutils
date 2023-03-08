@@ -363,6 +363,7 @@ def viewsettings() -> Response:
                 version: name for (game, version, name) in frontend.all_games()
             },
             "emblems": all_emblems,
+            "assets_available": g.config.assets.jubeat.emblems is not None,
         },
         {
             "updatename": url_for("jubeat_pages.updatename"),
@@ -490,7 +491,7 @@ def searchrivals() -> Dict[str, Any]:
 
     matches = set()
     profiles = g.data.remote.user.get_all_profiles(GameConstants.JUBEAT, version)
-    for (userid, profile) in profiles:
+    for userid, profile in profiles:
         if profile.extid == extid or profile.get_str("name").lower() == name.lower():
             matches.add(userid)
 
