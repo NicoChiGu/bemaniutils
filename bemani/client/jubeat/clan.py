@@ -53,24 +53,12 @@ class JubeatClanClient(BaseClient):
         self.assert_path(resp, "response/shopinfo/data/info/born/year")
         self.assert_path(resp, "response/shopinfo/data/info/collection/rating_s")
         self.assert_path(resp, "response/shopinfo/data/info/expert_option/is_available")
-        self.assert_path(
-            resp, "response/shopinfo/data/info/all_music_matching/is_available"
-        )
-        self.assert_path(
-            resp, "response/shopinfo/data/info/all_music_matching/team/default_flag"
-        )
-        self.assert_path(
-            resp, "response/shopinfo/data/info/all_music_matching/team/redbelk_flag"
-        )
-        self.assert_path(
-            resp, "response/shopinfo/data/info/all_music_matching/team/cyanttle_flag"
-        )
-        self.assert_path(
-            resp, "response/shopinfo/data/info/all_music_matching/team/greenesia_flag"
-        )
-        self.assert_path(
-            resp, "response/shopinfo/data/info/all_music_matching/team/plumpark_flag"
-        )
+        self.assert_path(resp, "response/shopinfo/data/info/all_music_matching/is_available")
+        self.assert_path(resp, "response/shopinfo/data/info/all_music_matching/team/default_flag")
+        self.assert_path(resp, "response/shopinfo/data/info/all_music_matching/team/redbelk_flag")
+        self.assert_path(resp, "response/shopinfo/data/info/all_music_matching/team/cyanttle_flag")
+        self.assert_path(resp, "response/shopinfo/data/info/all_music_matching/team/greenesia_flag")
+        self.assert_path(resp, "response/shopinfo/data/info/all_music_matching/team/plumpark_flag")
         self.assert_path(resp, "response/shopinfo/data/info/question_list")
         self.assert_path(resp, "response/shopinfo/data/info/drop_list")
         self.assert_path(resp, "response/shopinfo/data/info/daily_bonus_list")
@@ -138,24 +126,12 @@ class JubeatClanClient(BaseClient):
         self.assert_path(resp, "response/gametop/data/info/born/year")
         self.assert_path(resp, "response/gametop/data/info/collection/rating_s")
         self.assert_path(resp, "response/gametop/data/info/expert_option/is_available")
-        self.assert_path(
-            resp, "response/gametop/data/info/all_music_matching/is_available"
-        )
-        self.assert_path(
-            resp, "response/gametop/data/info/all_music_matching/team/default_flag"
-        )
-        self.assert_path(
-            resp, "response/gametop/data/info/all_music_matching/team/redbelk_flag"
-        )
-        self.assert_path(
-            resp, "response/gametop/data/info/all_music_matching/team/cyanttle_flag"
-        )
-        self.assert_path(
-            resp, "response/gametop/data/info/all_music_matching/team/greenesia_flag"
-        )
-        self.assert_path(
-            resp, "response/gametop/data/info/all_music_matching/team/plumpark_flag"
-        )
+        self.assert_path(resp, "response/gametop/data/info/all_music_matching/is_available")
+        self.assert_path(resp, "response/gametop/data/info/all_music_matching/team/default_flag")
+        self.assert_path(resp, "response/gametop/data/info/all_music_matching/team/redbelk_flag")
+        self.assert_path(resp, "response/gametop/data/info/all_music_matching/team/cyanttle_flag")
+        self.assert_path(resp, "response/gametop/data/info/all_music_matching/team/greenesia_flag")
+        self.assert_path(resp, "response/gametop/data/info/all_music_matching/team/plumpark_flag")
         self.assert_path(resp, "response/gametop/data/info/question_list")
         self.assert_path(resp, "response/gametop/data/info/drop_list")
         self.assert_path(resp, "response/gametop/data/info/daily_bonus_list")
@@ -234,19 +210,13 @@ class JubeatClanClient(BaseClient):
         self.assert_path(resp, "response/gametop/data/player/lab_edit_seq")
         self.assert_path(resp, "response/gametop/data/player/event_info")
         self.assert_path(resp, "response/gametop/data/player/navi/flag")
-        self.assert_path(
-            resp, "response/gametop/data/player/fc_challenge/today/music_id"
-        )
+        self.assert_path(resp, "response/gametop/data/player/fc_challenge/today/music_id")
         self.assert_path(resp, "response/gametop/data/player/fc_challenge/today/state")
-        self.assert_path(
-            resp, "response/gametop/data/player/fc_challenge/whim/music_id"
-        )
+        self.assert_path(resp, "response/gametop/data/player/fc_challenge/whim/music_id")
         self.assert_path(resp, "response/gametop/data/player/fc_challenge/whim/state")
         self.assert_path(resp, "response/gametop/data/player/official_news/news_list")
         self.assert_path(resp, "response/gametop/data/player/rivallist")
-        self.assert_path(
-            resp, "response/gametop/data/player/free_first_play/is_available"
-        )
+        self.assert_path(resp, "response/gametop/data/player/free_first_play/is_available")
         self.assert_path(resp, "response/gametop/data/player/jbox/point")
         self.assert_path(resp, "response/gametop/data/player/jbox/emblem/normal/index")
         self.assert_path(resp, "response/gametop/data/player/jbox/emblem/premium/index")
@@ -255,9 +225,7 @@ class JubeatClanClient(BaseClient):
         self.assert_path(resp, "response/gametop/data/player/born/status")
         self.assert_path(resp, "response/gametop/data/player/question_list")
         self.assert_path(resp, "response/gametop/data/player/jubility/@param")
-        self.assert_path(
-            resp, "response/gametop/data/player/jubility/target_music_list"
-        )
+        self.assert_path(resp, "response/gametop/data/player/jubility/target_music_list")
         self.assert_path(resp, "response/gametop/data/player/team/@id")
         self.assert_path(resp, "response/gametop/data/player/team/section")
         self.assert_path(resp, "response/gametop/data/player/team/street")
@@ -277,24 +245,12 @@ class JubeatClanClient(BaseClient):
         self.assert_path(resp, "response/gametop/data/player/drop_list/drop/@id")
         self.assert_path(resp, "response/gametop/data/player/drop_list/drop/exp")
         self.assert_path(resp, "response/gametop/data/player/drop_list/drop/flag")
-        self.assert_path(
-            resp, "response/gametop/data/player/drop_list/drop/item_list/item/@id"
-        )
-        self.assert_path(
-            resp, "response/gametop/data/player/drop_list/drop/item_list/item/num"
-        )
-        self.assert_path(
-            resp, "response/gametop/data/player/fill_in_category/no_gray_flag_list"
-        )
-        self.assert_path(
-            resp, "response/gametop/data/player/fill_in_category/all_yellow_flag_list"
-        )
-        self.assert_path(
-            resp, "response/gametop/data/player/fill_in_category/full_combo_flag_list"
-        )
-        self.assert_path(
-            resp, "response/gametop/data/player/fill_in_category/excellent_flag_list"
-        )
+        self.assert_path(resp, "response/gametop/data/player/drop_list/drop/item_list/item/@id")
+        self.assert_path(resp, "response/gametop/data/player/drop_list/drop/item_list/item/num")
+        self.assert_path(resp, "response/gametop/data/player/fill_in_category/no_gray_flag_list")
+        self.assert_path(resp, "response/gametop/data/player/fill_in_category/all_yellow_flag_list")
+        self.assert_path(resp, "response/gametop/data/player/fill_in_category/full_combo_flag_list")
+        self.assert_path(resp, "response/gametop/data/player/fill_in_category/excellent_flag_list")
         self.assert_path(resp, "response/gametop/data/player/daily_bonus_list")
         self.assert_path(resp, "response/gametop/data/player/ticket_list")
 
@@ -478,50 +434,48 @@ class JubeatClanClient(BaseClient):
         return self.__verify_profile(resp)
 
     def verify_gametop_get_mdata(self, jid: int) -> Dict[str, List[Dict[str, Any]]]:
-        call = self.call_node()
-
-        # Construct node
-        gametop = Node.void("gametop")
-        call.add_child(gametop)
-        gametop.set_attribute("method", "get_mdata")
-        retry = Node.s32("retry", 0)
-        gametop.add_child(retry)
-        data = Node.void("data")
-        gametop.add_child(data)
-        player = Node.void("player")
-        data.add_child(player)
-        player.add_child(Node.s32("jid", jid))
-        # Technically the game sends this same packet 3 times, one with
-        # each value 1, 2, 3 here. Unclear why, but we won't emulate it.
-        player.add_child(Node.s8("mdata_ver", 1))
-        player.add_child(Node.bool("rival", False))
-
-        # Swap with server
-        resp = self.exchange("", call)
-
-        # Parse out scores
-        self.assert_path(resp, "response/gametop/data/player/mdata_list")
-
         ret = {}
-        for musicdata in resp.child("gametop/data/player/mdata_list").children:
-            if musicdata.name != "musicdata":
-                raise Exception("Unexpected node in playdata!")
+        for ver in [1, 2, 3]:
+            # Construct node
+            call = self.call_node()
+            gametop = Node.void("gametop")
+            call.add_child(gametop)
+            gametop.set_attribute("method", "get_mdata")
+            retry = Node.s32("retry", 0)
+            gametop.add_child(retry)
+            data = Node.void("data")
+            gametop.add_child(data)
+            player = Node.void("player")
+            data.add_child(player)
+            player.add_child(Node.s32("jid", jid))
+            player.add_child(Node.s8("mdata_ver", ver))
+            player.add_child(Node.bool("rival", False))
 
-            music_id = musicdata.attribute("music_id")
-            scores_by_chart: List[Dict[str, int]] = [{}, {}, {}]
+            # Swap with server
+            resp = self.exchange("", call)
 
-            def extract_cnts(name: str, val: List[int]) -> None:
-                scores_by_chart[0][name] = val[0]
-                scores_by_chart[1][name] = val[1]
-                scores_by_chart[2][name] = val[2]
+            # Parse out scores
+            self.assert_path(resp, "response/gametop/data/player/mdata_list")
 
-            extract_cnts("plays", musicdata.child_value("play_cnt"))
-            extract_cnts("clears", musicdata.child_value("clear_cnt"))
-            extract_cnts("full_combos", musicdata.child_value("fc_cnt"))
-            extract_cnts("excellents", musicdata.child_value("ex_cnt"))
-            extract_cnts("score", musicdata.child_value("score"))
-            extract_cnts("medal", musicdata.child_value("clear"))
-            ret[music_id] = scores_by_chart
+            for musicdata in resp.child("gametop/data/player/mdata_list").children:
+                if musicdata.name != "musicdata":
+                    raise Exception("Unexpected node in playdata!")
+
+                music_id = musicdata.attribute("music_id")
+                scores_by_chart: List[Dict[str, int]] = [{}, {}, {}]
+
+                def extract_cnts(name: str, val: List[int]) -> None:
+                    scores_by_chart[0][name] = val[0]
+                    scores_by_chart[1][name] = val[1]
+                    scores_by_chart[2][name] = val[2]
+
+                extract_cnts("plays", musicdata.child_value("play_cnt"))
+                extract_cnts("clears", musicdata.child_value("clear_cnt"))
+                extract_cnts("full_combos", musicdata.child_value("fc_cnt"))
+                extract_cnts("excellents", musicdata.child_value("ex_cnt"))
+                extract_cnts("score", musicdata.child_value("score"))
+                extract_cnts("medal", musicdata.child_value("clear"))
+                ret[music_id] = scores_by_chart
 
         return ret
 
@@ -663,31 +617,21 @@ class JubeatClanClient(BaseClient):
             print(f"Generated random card ID {card} for use.")
 
         if cardid is None:
-            self.verify_cardmng_inquire(
-                card, msg_type="unregistered", paseli_enabled=paseli_enabled
-            )
+            self.verify_cardmng_inquire(card, msg_type="unregistered", paseli_enabled=paseli_enabled)
             ref_id = self.verify_cardmng_getrefid(card)
             if len(ref_id) != 16:
-                raise Exception(
-                    f"Invalid refid '{ref_id}' returned when registering card"
-                )
-            if ref_id != self.verify_cardmng_inquire(
-                card, msg_type="new", paseli_enabled=paseli_enabled
-            ):
+                raise Exception(f"Invalid refid '{ref_id}' returned when registering card")
+            if ref_id != self.verify_cardmng_inquire(card, msg_type="new", paseli_enabled=paseli_enabled):
                 raise Exception(f"Invalid refid '{ref_id}' returned when querying card")
             self.verify_gametop_regist(card, ref_id)
         else:
             print("Skipping new card checks for existing card")
-            ref_id = self.verify_cardmng_inquire(
-                card, msg_type="query", paseli_enabled=paseli_enabled
-            )
+            ref_id = self.verify_cardmng_inquire(card, msg_type="query", paseli_enabled=paseli_enabled)
 
         # Verify pin handling and return card handling
         self.verify_cardmng_authpass(ref_id, correct=True)
         self.verify_cardmng_authpass(ref_id, correct=False)
-        if ref_id != self.verify_cardmng_inquire(
-            card, msg_type="query", paseli_enabled=paseli_enabled
-        ):
+        if ref_id != self.verify_cardmng_inquire(card, msg_type="query", paseli_enabled=paseli_enabled):
             raise Exception(f"Invalid refid '{ref_id}' returned when querying card")
 
         if cardid is None:

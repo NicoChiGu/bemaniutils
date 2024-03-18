@@ -34,9 +34,7 @@ class Memory:
             else:
                 # Attempt to return the default.
                 for virtual_start in self.defaults:
-                    if i >= virtual_start and i < (
-                        virtual_start + len(self.defaults[virtual_start])
-                    ):
+                    if i >= virtual_start and i < (virtual_start + len(self.defaults[virtual_start])):
                         data.append(self.defaults[virtual_start][i - virtual_start])
                         break
                 else:
@@ -71,6 +69,18 @@ class RetException(Exception):
     pass
 
 
+class InvalidOffsetException(Exception):
+    pass
+
+
+class InvalidVirtualOffsetException(InvalidOffsetException):
+    pass
+
+
+class InvalidPhysicalOffsetException(InvalidOffsetException):
+    pass
+
+
 class PEFile:
     def __init__(self, data: bytes) -> None:
         self.data = data
@@ -89,9 +99,7 @@ class PEFile:
             if offset == virtual:
                 return physical
 
-        raise Exception(
-            f"Couldn't find physical offset for virtual offset 0x{offset:08x}"
-        )
+        raise InvalidVirtualOffsetException(f"Couldn't find physical offset for virtual offset 0x{offset:08x}")
 
     def physical_to_virtual(self, offset: int) -> int:
         for section in self.__pe.sections:
@@ -99,19 +107,13 @@ class PEFile:
             end = start + section.SizeOfRawData
 
             if offset >= start and offset < end:
-                return (
-                    (offset - start)
-                    + section.VirtualAddress
-                    + self.__pe.OPTIONAL_HEADER.ImageBase
-                )
+                return (offset - start) + section.VirtualAddress + self.__pe.OPTIONAL_HEADER.ImageBase
 
         for virtual, physical in self.__adhoc_mapping.items():
             if offset == physical:
                 return virtual
 
-        raise Exception(
-            f"Couldn't find virtual offset for physical offset 0x{offset:08x}"
-        )
+        raise InvalidPhysicalOffsetException(f"Couldn't find virtual offset for physical offset 0x{offset:08x}")
 
     def is_virtual(self, offset: int) -> bool:
         return offset >= self.__pe.OPTIONAL_HEADER.ImageBase
@@ -247,9 +249,7 @@ class PEFile:
         while loc < len(chunk):
             inst = chunk[loc]
             loc = loc + 1
-            mnemonic = formatter.format_mnemonic(
-                inst, FormatMnemonicOptions.NO_PREFIXES
-            )
+            mnemonic = formatter.format_mnemonic(inst, FormatMnemonicOptions.NO_PREFIXES)
 
             if mnemonic == "mov":
                 dest = formatter.format_operand(inst, 0)
@@ -259,9 +259,7 @@ class PEFile:
 
                 size = get_size(src) or get_size(dest)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
                 result = fetch(registers, memory, size, src)
                 assign(registers, memory, size, dest, result)
 
@@ -274,9 +272,7 @@ class PEFile:
                 srcsize = get_size(src)
                 dstsize = get_size(dest)
                 if srcsize is None or dstsize is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
                 result = fetch(registers, memory, srcsize, src)
                 assign(registers, memory, dstsize, dest, result)
 
@@ -288,9 +284,7 @@ class PEFile:
 
                 size = get_size(amt) or get_size(dest)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
 
                 # Special case for adjusting ESP, to make sure our memory contains zeros for reading
                 # out the stack later.
@@ -300,9 +294,7 @@ class PEFile:
                     memory.init(min(before, after), max(before, after))
                     assign(registers, memory, size, dest, after)
                 else:
-                    result = fetch(registers, memory, size, dest) + fetch(
-                        registers, memory, size, amt
-                    )
+                    result = fetch(registers, memory, size, dest) + fetch(registers, memory, size, amt)
                     assign(registers, memory, size, dest, result)
 
             elif mnemonic == "sub":
@@ -313,9 +305,7 @@ class PEFile:
 
                 size = get_size(amt) or get_size(dest)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
 
                 # Special case for adjusting ESP, to make sure our memory contains zeros for reading
                 # out the stack later.
@@ -325,9 +315,7 @@ class PEFile:
                     memory.init(min(before, after), max(before, after))
                     assign(registers, memory, size, dest, after)
                 else:
-                    result = fetch(registers, memory, size, dest) - fetch(
-                        registers, memory, size, amt
-                    )
+                    result = fetch(registers, memory, size, dest) - fetch(registers, memory, size, amt)
                     assign(registers, memory, size, dest, result)
 
             elif mnemonic == "imul":
@@ -340,19 +328,11 @@ class PEFile:
                     const = None
                     vprint(f"imul {dest}, {mult}")
 
-                size = (
-                    get_size(mult)
-                    or get_size(dest)
-                    or (get_size(const) if const is not None else None)
-                )
+                size = get_size(mult) or get_size(dest) or (get_size(const) if const is not None else None)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
                 if const is None:
-                    result = fetch(registers, memory, size, dest) * fetch(
-                        registers, memory, size, mult
-                    )
+                    result = fetch(registers, memory, size, dest) * fetch(registers, memory, size, mult)
                 else:
                     result = fetch(registers, memory, size, mult) * get_value(const)
                 assign(registers, memory, size, dest, result)
@@ -364,9 +344,7 @@ class PEFile:
 
                 size = get_size(src)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
                 result = fetch(registers, memory, size, src)
                 registers.rsp -= size
                 assign(
@@ -384,12 +362,8 @@ class PEFile:
 
                 size = get_size(src)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
-                result = fetch(
-                    registers, memory, size, "[rsp]" if self.is_64bit() else "[esp]"
-                )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
+                result = fetch(registers, memory, size, "[rsp]" if self.is_64bit() else "[esp]")
                 assign(registers, memory, size, dest, result)
                 registers.rsp += size
 
@@ -401,12 +375,8 @@ class PEFile:
 
                 size = get_size(op1) or get_size(op2)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
-                result = fetch(registers, memory, size, op1) & fetch(
-                    registers, memory, size, op2
-                )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
+                result = fetch(registers, memory, size, op1) & fetch(registers, memory, size, op2)
 
                 registers.zf = result == 0
                 if size == 1:
@@ -480,12 +450,8 @@ class PEFile:
 
                 size = get_size(src) or get_size(dest)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
-                result = fetch(registers, memory, size, dest) & fetch(
-                    registers, memory, size, src
-                )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
+                result = fetch(registers, memory, size, dest) & fetch(registers, memory, size, src)
                 assign(registers, memory, size, dest, result)
 
             elif mnemonic == "or":
@@ -496,12 +462,8 @@ class PEFile:
 
                 size = get_size(src) or get_size(dest)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
-                result = fetch(registers, memory, size, dest) | fetch(
-                    registers, memory, size, src
-                )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
+                result = fetch(registers, memory, size, dest) | fetch(registers, memory, size, src)
                 assign(registers, memory, size, dest, result)
 
             elif mnemonic == "xor":
@@ -512,12 +474,8 @@ class PEFile:
 
                 size = get_size(src) or get_size(dest)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
-                result = fetch(registers, memory, size, dest) ^ fetch(
-                    registers, memory, size, src
-                )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
+                result = fetch(registers, memory, size, dest) ^ fetch(registers, memory, size, src)
                 assign(registers, memory, size, dest, result)
 
             elif mnemonic == "lea":
@@ -528,22 +486,16 @@ class PEFile:
 
                 size = get_size(src) or get_size(dest)
                 if size is None:
-                    raise Exception(
-                        f"Could not determine size of {mnemonic} operation!"
-                    )
+                    raise Exception(f"Could not determine size of {mnemonic} operation!")
                 result = get_address(registers, src)
                 if result is None:
-                    raise Exception(
-                        f"Could not compute effective address for {mnemonic} operation!"
-                    )
+                    raise Exception(f"Could not compute effective address for {mnemonic} operation!")
                 assign(registers, memory, size, dest, result)
 
             elif mnemonic == "ret":
                 vprint("ret")
 
-                raise RetException(
-                    "Encountered {mnemonic} instruction but we aren't in function context!"
-                )
+                raise RetException("Encountered {mnemonic} instruction but we aren't in function context!")
 
             else:
                 raise Exception(f"Unsupported mnemonic {mnemonic}!")
@@ -720,9 +672,7 @@ def get_size(operand: str) -> Optional[int]:
     return None
 
 
-def assign(
-    registers: Registers, memory: Memory, size: int, loc: str, value: int
-) -> None:
+def assign(registers: Registers, memory: Memory, size: int, loc: str, value: int) -> None:
     """
     Given the registers and memory of our emulator, the size of the operation
     performed, the location to assign to and the value we should assign,

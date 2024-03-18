@@ -30,13 +30,9 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
 
     PLAY_MEDAL_FAILED: Final[int] = DBConstants.JUBEAT_PLAY_MEDAL_FAILED
     PLAY_MEDAL_CLEARED: Final[int] = DBConstants.JUBEAT_PLAY_MEDAL_CLEARED
-    PLAY_MEDAL_NEARLY_FULL_COMBO: Final[
-        int
-    ] = DBConstants.JUBEAT_PLAY_MEDAL_NEARLY_FULL_COMBO
+    PLAY_MEDAL_NEARLY_FULL_COMBO: Final[int] = DBConstants.JUBEAT_PLAY_MEDAL_NEARLY_FULL_COMBO
     PLAY_MEDAL_FULL_COMBO: Final[int] = DBConstants.JUBEAT_PLAY_MEDAL_FULL_COMBO
-    PLAY_MEDAL_NEARLY_EXCELLENT: Final[
-        int
-    ] = DBConstants.JUBEAT_PLAY_MEDAL_NEARLY_EXCELLENT
+    PLAY_MEDAL_NEARLY_EXCELLENT: Final[int] = DBConstants.JUBEAT_PLAY_MEDAL_NEARLY_EXCELLENT
     PLAY_MEDAL_EXCELLENT: Final[int] = DBConstants.JUBEAT_PLAY_MEDAL_EXCELLENT
 
     CHART_TYPE_BASIC: Final[int] = 0
@@ -86,18 +82,14 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
         """
         return Node.void("gametop")
 
-    def format_scores(
-        self, userid: UserID, profile: Profile, scores: List[Score]
-    ) -> Node:
+    def format_scores(self, userid: UserID, profile: Profile, scores: List[Score]) -> Node:
         """
         Base handler for a score list. Given a userid, profile and a score list,
         return a Node representing a score list. Should be overridden.
         """
         return Node.void("gametop")
 
-    def unformat_profile(
-        self, userid: UserID, request: Node, oldprofile: Profile
-    ) -> Profile:
+    def unformat_profile(self, userid: UserID, request: Node, oldprofile: Profile) -> Profile:
         """
         Base handler for profile parsing. Given a request and an old profile,
         return a new profile that's been updated with the contents of the request.
@@ -159,23 +151,54 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
 
         return self.format_profile(userid, profile)
 
-    def get_scores_by_extid(self, extid: Optional[int]) -> Optional[Node]:
+    def get_scores_by_extid(self, extid: Optional[int], partition: int, total_partitions: int) -> Optional[Node]:
         """
         Given an ExtID, return a formatted score node. Similar rationale to
-        get_profile_by_refid.
+        get_profile_by_refid. Note that this takes into account the game's
+        desire to partition scores into separate fetches to ensure that we
+        don't make any one request too long. We handle the logic for that here.
         """
         if extid is None:
             return None
 
         userid = self.data.remote.user.from_extid(self.game, self.version, extid)
-        scores = self.data.remote.music.get_scores(
-            self.game, self.music_version, userid
-        )
-        if scores is None:
-            return None
         profile = self.get_profile(userid)
         if profile is None:
             return None
+
+        cache_key = f"get_scores_by_extid-{extid}"
+        score: Optional[List[Score]]
+
+        if partition == 1:
+            # We fetch all scores on the first partition and then divy up
+            # the scores across total_partitions fetches. If it is small
+            # enough, we don't bother.
+            scores = self.data.remote.music.get_scores(self.game, self.music_version, userid)
+        else:
+            # We will want to fetch the remaining scores that were in our
+            # cache.
+            scores = self.cache.get(cache_key)  # type: ignore
+
+        if len(scores) < 50:
+            # We simply return the whole amount for this, and cache nothing.
+            rest = []
+        else:
+            groups = (total_partitions - partition) + 1
+            pivot = len(scores) // groups
+
+            rest = scores[pivot:]
+            scores = scores[:pivot]
+
+        # Cache the rest of the scores for next iteration, unless we're on the
+        # last iteration.
+        if partition == total_partitions:
+            if rest:
+                raise Exception("Logic error, should not have gotten additional scores to cache on last iteration!")
+            self.cache.delete(cache_key)
+        else:
+            self.cache.set(cache_key, rest, timeout=60)
+
+        # Format the chunk of scores we have to send back to the client.
         return self.format_scores(userid, profile, scores)
 
     def update_score(
@@ -302,10 +325,7 @@ class JubeatBase(CoreHandler, CardManagerHandler, PASELIHandler, Base):
 
         for gameitem in gameitems:
             if gameitem.type == "emblem":
-                if (
-                    gameitem.data.get_int("layer") == 2
-                    and gameitem.data.get_int("rarity") == 1
-                ):
+                if gameitem.data.get_int("layer") == 2 and gameitem.data.get_int("rarity") == 1:
                     default_main.add(gameitem.id)
 
         return default_main

@@ -9,6 +9,8 @@ from bemani.common import (
     VersionConstants,
     DBConstants,
     ValidatedDict,
+    Time,
+    cache,
 )
 
 
@@ -43,13 +45,24 @@ class APIClient:
 
     API_VERSION: Final[str] = "v1"
 
-    def __init__(
-        self, base_uri: str, token: str, allow_stats: bool, allow_scores: bool
-    ) -> None:
+    def __init__(self, base_uri: str, token: str, allow_stats: bool, allow_scores: bool) -> None:
         self.base_uri = base_uri
         self.token = token
         self.allow_stats = allow_stats
         self.allow_scores = allow_scores
+
+    def __repr__(self) -> str:
+        # Specifically defined so that two different instances of the same API client
+        # cache under the same key, as we want to share results from a given server
+        # to all local requests.
+        return (
+            "APIClient("
+            + f"base_uri={self.base_uri!r}, "
+            + f"token={self.token!r}, "
+            + f"allow_stats={self.allow_stats!r}, "
+            + f"allow_scores={self.allow_scores!r}"
+            + ")"
+        )
 
     def _content_type_valid(self, content_type: str) -> bool:
         if ";" in content_type:
@@ -67,9 +80,7 @@ class APIClient:
                     return True
         return False
 
-    def __exchange_data(
-        self, request_uri: str, request_args: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def __exchange_data(self, request_uri: str, request_args: Dict[str, Any]) -> Dict[str, Any]:
         if self.base_uri[-1:] != "/":
             uri = f"{self.base_uri}/{request_uri}"
         else:
@@ -95,9 +106,7 @@ class APIClient:
 
         # Verify that content type is in the form of "application/json; charset=utf-8".
         if not self._content_type_valid(r.headers["content-type"]):
-            raise APIException(
-                f'API returned invalid content type \'{r.headers["content-type"]}\'!'
-            )
+            raise APIException(f'API returned invalid content type \'{r.headers["content-type"]}\'!')
 
         jsondata = r.json()
 
@@ -111,28 +120,18 @@ class APIClient:
         error = jsondata["error"]
 
         if r.status_code == 401:
-            raise NotAuthorizedAPIException(
-                "The API token used is not authorized against this server!"
-            )
+            raise NotAuthorizedAPIException("The API token used is not authorized against this server!")
         if r.status_code == 404:
-            raise UnsupportedRequestAPIException(
-                "The server does not support this game/version or request object!"
-            )
+            raise UnsupportedRequestAPIException("The server does not support this game/version or request object!")
         if r.status_code == 405:
-            raise UnrecognizedRequestAPIException(
-                "The server did not recognize the request!"
-            )
+            raise UnrecognizedRequestAPIException("The server did not recognize the request!")
         if r.status_code == 500:
             raise RemoteServerErrorAPIException(
                 f"The server had an error processing the request and returned '{error}'"
             )
         if r.status_code == 501:
-            raise UnsupportedVersionAPIException(
-                "The server does not support this version of the API!"
-            )
-        raise APIException(
-            "The server returned an invalid status code {}!", format(r.status_code)
-        )
+            raise UnsupportedVersionAPIException("The server does not support this version of the API!")
+        raise APIException("The server returned an invalid status code {}!", format(r.status_code))
 
     def __translate(self, game: GameConstants, version: int) -> Tuple[str, str]:
         servergame = {
@@ -145,9 +144,7 @@ class APIClient:
             GameConstants.SDVX: "soundvoltex",
         }.get(game)
         if servergame is None:
-            raise UnsupportedRequestAPIException(
-                "The client does not support this game/version!"
-            )
+            raise UnsupportedRequestAPIException("The client does not support this game/version!")
 
         if version >= DBConstants.OMNIMIX_VERSION_BUMP:
             version = version - DBConstants.OMNIMIX_VERSION_BUMP
@@ -219,15 +216,15 @@ class APIClient:
             .get(version)
         )
         if serverversion is None:
-            raise UnsupportedRequestAPIException(
-                "The client does not support this game/version!"
-            )
+            raise UnsupportedRequestAPIException("The client does not support this game/version!")
 
         if omnimix:
             serverversion = "o" + serverversion
 
         return (servergame, serverversion)
 
+    # Not caching this, as it is only hit when looking at the admin panel, and we want this to
+    # always be up-to-date.
     def get_server_info(self) -> ValidatedDict:
         resp = self.__exchange_data("", {})
         return ValidatedDict(
@@ -238,6 +235,9 @@ class APIClient:
             }
         )
 
+    # Not caching this, as we would have to go back and ensure that any code which got outdated
+    # profiles from a cache didn't end up with KeyError exceptions when trying to link profiles to
+    # records. This is the coward's way out, but whatever.
     def get_profiles(
         self, game: GameConstants, version: int, idtype: APIConstants, ids: List[str]
     ) -> List[Dict[str, Any]]:
@@ -260,6 +260,7 @@ class APIClient:
             # Couldn't talk to server, assume empty profiles
             return []
 
+    @cache.memoize(Time.SECONDS_IN_MINUTE * 1)
     def get_records(
         self,
         game: GameConstants,
@@ -293,6 +294,7 @@ class APIClient:
             # Couldn't talk to server, assume empty records
             return []
 
+    @cache.memoize(Time.SECONDS_IN_MINUTE * 5)
     def get_statistics(
         self, game: GameConstants, version: int, idtype: APIConstants, ids: List[str]
     ) -> List[Dict[str, Any]]:
@@ -315,9 +317,8 @@ class APIClient:
             # Couldn't talk to server, assume empty statistics
             return []
 
-    def get_catalog(
-        self, game: GameConstants, version: int
-    ) -> Dict[str, List[Dict[str, Any]]]:
+    @cache.memoize(Time.SECONDS_IN_HOUR * 1)
+    def get_catalog(self, game: GameConstants, version: int) -> Dict[str, List[Dict[str, Any]]]:
         # No point disallowing this, since its only ever used for bootstrapping.
 
         try:

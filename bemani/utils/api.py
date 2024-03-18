@@ -1,7 +1,11 @@
 import argparse
+from typing import Any
 
 from bemani.api import app, config  # noqa: F401
-from bemani.utils.config import load_config as base_load_config
+from bemani.utils.config import (
+    load_config as base_load_config,
+    instantiate_cache as base_instantiate_cache,
+)
 
 
 def load_config(filename: str) -> None:
@@ -9,13 +13,16 @@ def load_config(filename: str) -> None:
     base_load_config(filename, config)
 
 
+def instantiate_cache(app: Any) -> None:
+    global config
+    base_instantiate_cache(config, app)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="An API services provider for eAmusement games, conforming to BEMAPI specs."
     )
-    parser.add_argument(
-        "-p", "--port", help="Port to listen on. Defaults to 80", type=int, default=80
-    )
+    parser.add_argument("-p", "--port", help="Port to listen on. Defaults to 80", type=int, default=80)
     parser.add_argument(
         "-c",
         "--config",
@@ -48,6 +55,7 @@ def main() -> None:
         app.wsgi_app = ProfilerMiddleware(app.wsgi_app, profile_dir=".")  # type: ignore
 
     # Run the app
+    instantiate_cache(app)
     app.run(host="0.0.0.0", port=args.port, debug=True)
 
 

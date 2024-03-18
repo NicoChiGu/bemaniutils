@@ -45,9 +45,7 @@ lobby = Table(
 
 
 class LobbyData(BaseData):
-    def get_play_session_info(
-        self, game: GameConstants, version: int, userid: UserID
-    ) -> Optional[ValidatedDict]:
+    def get_play_session_info(self, game: GameConstants, version: int, userid: UserID) -> Optional[ValidatedDict]:
         """
         Given a game, version and a user ID, look up play session information for that user.
 
@@ -90,9 +88,7 @@ class LobbyData(BaseData):
         data["time"] = result["time"]
         return data
 
-    def get_all_play_session_infos(
-        self, game: GameConstants, version: int
-    ) -> List[Tuple[UserID, ValidatedDict]]:
+    def get_all_play_session_infos(self, game: GameConstants, version: int) -> List[Tuple[UserID, ValidatedDict]]:
         """
         Given a game and version, look up all play session information.
 
@@ -125,9 +121,7 @@ class LobbyData(BaseData):
 
         return [(UserID(result["userid"]), format_result(result)) for result in cursor]
 
-    def put_play_session_info(
-        self, game: GameConstants, version: int, userid: UserID, data: Dict[str, Any]
-    ) -> None:
+    def put_play_session_info(self, game: GameConstants, version: int, userid: UserID, data: Dict[str, Any]) -> None:
         """
         Given a game, version and a user ID, save play session information for that user.
 
@@ -160,9 +154,7 @@ class LobbyData(BaseData):
             },
         )
 
-    def destroy_play_session_info(
-        self, game: GameConstants, version: int, userid: UserID
-    ) -> None:
+    def destroy_play_session_info(self, game: GameConstants, version: int, userid: UserID) -> None:
         """
         Given a game, version and a user ID, throw away session info for that play session.
 
@@ -185,9 +177,7 @@ class LobbyData(BaseData):
         sql = "DELETE FROM playsession WHERE time <= :time"
         self.execute(sql, {"time": Time.now() - Time.SECONDS_IN_HOUR})
 
-    def get_lobby(
-        self, game: GameConstants, version: int, userid: UserID
-    ) -> Optional[ValidatedDict]:
+    def get_lobby(self, game: GameConstants, version: int, userid: UserID) -> Optional[ValidatedDict]:
         """
         Given a game, version and a user ID, look up lobby information for that user.
 
@@ -231,7 +221,7 @@ class LobbyData(BaseData):
         return data
 
     def get_all_lobbies(
-        self, game: GameConstants, version: int
+        self, game: GameConstants, version: int, max_age: int = Time.SECONDS_IN_HOUR
     ) -> List[Tuple[UserID, ValidatedDict]]:
         """
         Given a game and version, look up all active lobbies.
@@ -244,7 +234,7 @@ class LobbyData(BaseData):
             A list of dictionaries representing lobby info stored by a game class.
         """
         sql = """
-            SELECT userid, id, data FROM lobby
+            SELECT userid, id, time, data FROM lobby
             WHERE game = :game AND version = :version AND time > :time
         """
         cursor = self.execute(
@@ -252,7 +242,7 @@ class LobbyData(BaseData):
             {
                 "game": game.value,
                 "version": version,
-                "time": Time.now() - Time.SECONDS_IN_HOUR,
+                "time": Time.now() - max_age,
             },
         )
 
@@ -264,9 +254,7 @@ class LobbyData(BaseData):
 
         return [(UserID(result["userid"]), format_result(result)) for result in cursor]
 
-    def put_lobby(
-        self, game: GameConstants, version: int, userid: UserID, data: Dict[str, Any]
-    ) -> None:
+    def put_lobby(self, game: GameConstants, version: int, userid: UserID, data: Dict[str, Any]) -> None:
         """
         Given a game, version and a user ID, save lobby information for that user.
 

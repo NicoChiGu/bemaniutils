@@ -12,6 +12,7 @@ class Time:
     standard unix timestamps at UTC timezone given various parameters.
     """
 
+    SECONDS_IN_SECOND: Final[int] = 1
     SECONDS_IN_MINUTE: Final[int] = 60
     SECONDS_IN_HOUR: Final[int] = 3600
     SECONDS_IN_DAY: Final[int] = 86400
@@ -30,9 +31,7 @@ class Time:
         Returns the unix timestamp for the end of today in UTC timezone.
         """
         now = datetime.datetime.utcnow().date()
-        beginning_of_day = datetime.datetime(
-            now.year, now.month, now.day, tzinfo=tz.tzutc()
-        )
+        beginning_of_day = datetime.datetime(now.year, now.month, now.day, tzinfo=tz.tzutc())
         end_of_day = beginning_of_day + datetime.timedelta(days=1)
         return calendar.timegm(end_of_day.timetuple())
 
@@ -42,9 +41,7 @@ class Time:
         Returns the unix timestamp for the beginning of today in UTC timezone.
         """
         now = datetime.datetime.utcnow().date()
-        beginning_of_day = datetime.datetime(
-            now.year, now.month, now.day, tzinfo=tz.tzutc()
-        )
+        beginning_of_day = datetime.datetime(now.year, now.month, now.day, tzinfo=tz.tzutc())
         return calendar.timegm(beginning_of_day.timetuple())
 
     @staticmethod
